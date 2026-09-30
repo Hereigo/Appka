@@ -1,6 +1,6 @@
 using Appka.Application.Services;
 using Appka.Infrastructure.Repositories;
-using Microsoft.OpenApi.Models;
+//using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
