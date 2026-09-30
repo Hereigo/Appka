@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "server: watch",
+      "type": "shell",
+      "command": "dotnet watch run --launch-profile http",
+      "options": { "cwd": "${workspaceFolder}/Appka.Server" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "client: dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/Appka.Client" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "dev: run all",
+      "dependsOn": ["server: watch", "client: dev"],
+      "dependsOrder": "parallel",
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true }
+    }
+  ]
+}

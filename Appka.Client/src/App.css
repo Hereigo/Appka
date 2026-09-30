@@ -1,0 +1,89 @@
+.page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  text-align: left;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.25rem;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0;
+  color: #8b93a7;
+}
+
+.card {
+  background: #1b1f2acc;
+  border: 1px solid #2c3346;
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b93a7;
+}
+
+.message {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.muted {
+  color: #8b93a7;
+  margin: 0;
+}
+
+.error {
+  color: #ff6b6b;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  border-bottom: 1px solid #2c3346;
+}
+
+th {
+  color: #8b93a7;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: light) {
+  .card {
+    background: #ffffff;
+    border-color: #e2e6ef;
+  }
+
+  th,
+  td {
+    border-bottom-color: #e2e6ef;
+  }
+}
