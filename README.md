@@ -52,6 +52,19 @@ npm run dev
 
 Open http://localhost:5173 - the page fetches from the API and shows the greeting plus the forecast table.
 
+## Database
+
+The server uses Entity Framework Core with SQLite through `NotesDbContext`. The default connection string stores `appka.db` in the server project directory. Install the matching EF CLI if needed, then apply the schema from `Appka.Server`:
+
+```powershell
+dotnet tool install --global dotnet-ef --version 10.0.12
+cd Appka.Server
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+```
+
+For later model changes, add a new migration and apply it with `dotnet ef database update`.
+
 In VS Code you can instead run the `dev: run all` task (`Ctrl+Shift+B`) to start both at once.
 
 ## Build

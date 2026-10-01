@@ -1,4 +1,12 @@
+using Appka.Server;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("Appka")
+    ?? throw new InvalidOperationException("Connection string 'Appka' was not found.");
+
+builder.Services.AddDbContext<NotesDbContext>(options => options.UseSqlite(connectionString));
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
