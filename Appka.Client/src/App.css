@@ -44,6 +44,107 @@ h1 {
   color: #8b93a7;
 }
 
+.note-form {
+  display: grid;
+  gap: 0.65rem;
+  padding-bottom: 1.25rem;
+}
+
+.note-form label {
+  font-weight: 600;
+}
+
+.note-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  min-height: 5rem;
+  padding: 0.75rem;
+  border: 1px solid #41495d;
+  border-radius: 0.4rem;
+  color: inherit;
+  background: #12141a;
+  font: inherit;
+}
+
+.note-form textarea:focus-visible {
+  outline: 2px solid #6ca6a0;
+  outline-offset: 2px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+.form-actions .error {
+  margin: 0 auto 0 0;
+}
+
+.form-actions button {
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 0.4rem;
+  color: #121a19;
+  background: #9dd5ca;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form-actions button:hover:not(:disabled) {
+  background: #b7e6dc;
+}
+
+.form-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.note-list {
+  border-top: 1px solid #2c3346;
+}
+
+.note-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #2c3346;
+}
+
+.note-text {
+  min-width: 0;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note-details {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+  color: #8b93a7;
+  font-size: 0.8rem;
+}
+
+.note-status {
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  color: #c6ded9;
+  background: #31524c;
+}
+
+.empty-state {
+  margin: 1rem 0 0;
+  color: #8b93a7;
+}
+
 .message {
   font-size: 1.25rem;
   font-weight: 600;
@@ -82,8 +183,35 @@ th {
     border-color: #e2e6ef;
   }
 
+  .note-form textarea {
+    border-color: #c9cfdb;
+    color: #1f2430;
+    background: #ffffff;
+  }
+
   th,
   td {
     border-bottom-color: #e2e6ef;
+  }
+
+  .note-list,
+  .note-row {
+    border-color: #e2e6ef;
+  }
+
+  .note-status {
+    color: #24564d;
+    background: #d8eee8;
+  }
+}
+
+@media (max-width: 32rem) {
+  .note-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .note-details {
+    flex-wrap: wrap;
   }
 }
