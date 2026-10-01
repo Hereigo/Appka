@@ -45,6 +45,32 @@ api.MapGet("/hello", () => new HelloMessage(
         DateTimeOffset.Now))
    .WithName("GetHello");
 
+api.MapPost("/notes", async (
+    CreateNoteRequest request,
+    NotesDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (request.Text is null || request.Text.Length < 2)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            [nameof(request.Text)] = ["Text must be at least 2 characters long."]
+        });
+    }
+
+    var note = new Note
+    {
+        Id = long.Parse(DateTime.Now.ToString("yyMMddHHmmssfff")),
+        Text = request.Text
+    };
+
+    dbContext.Notes.Add(note);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Json(note, statusCode: StatusCodes.Status201Created);
+})
+   .WithName("CreateNote");
+
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -62,6 +88,8 @@ api.MapGet("/weatherforecast", () =>
 app.Run();
 
 record HelloMessage(string Message, DateTimeOffset ServerTime);
+
+record CreateNoteRequest(string? Text);
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

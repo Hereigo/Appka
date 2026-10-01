@@ -17,8 +17,11 @@ The Vite dev server proxies `/api/*` to the API (see [Appka.Client/vite.config.t
 | Method | Route | Description |
 | --- | --- | --- |
 | GET | `/api/hello` | Greeting plus current server time |
+| POST | `/api/notes` | Creates a note when `text` contains at least two characters |
 | GET | `/api/weatherforecast` | Five random forecast entries |
 | GET | `/openapi/v1.json` | OpenAPI document (Development only) |
+
+Create a note with `POST /api/notes` and a JSON body such as `{"text":"Remember this"}`. The server generates its timestamp-based ID.
 
 ## Prerequisites
 
