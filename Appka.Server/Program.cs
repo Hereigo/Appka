@@ -71,6 +71,64 @@ api.MapPost("/notes", async (
 })
    .WithName("CreateNote");
 
+api.MapGet("/notes", async (NotesDbContext dbContext, CancellationToken cancellationToken) =>
+        await dbContext.Notes
+            .AsNoTracking()
+            .OrderBy(note => note.Id)
+            .ToListAsync(cancellationToken))
+   .WithName("GetNotes");
+
+api.MapPut("/notes/{id:long}", async (
+    long id,
+    UpdateNoteRequest request,
+    NotesDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    if (request.Text is null || request.Text.Length < 2)
+    {
+        return Results.ValidationProblem(new Dictionary<string, string[]>
+        {
+            [nameof(request.Text)] = ["Text must be at least 2 characters long."]
+        });
+    }
+
+    var note = await dbContext.Notes
+        .FirstOrDefaultAsync(note => note.Id == id, cancellationToken);
+
+    if (note is null)
+    {
+        return Results.NotFound();
+    }
+
+    note.Text = request.Text;
+    note.IsArchived = request.IsArchived;
+
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.Ok(note);
+})
+   .WithName("UpdateNote");
+
+api.MapDelete("/notes/{id:long}", async (
+    long id,
+    NotesDbContext dbContext,
+    CancellationToken cancellationToken) =>
+{
+    var note = await dbContext.Notes
+        .FirstOrDefaultAsync(note => note.Id == id, cancellationToken);
+
+    if (note is null)
+    {
+        return Results.NotFound();
+    }
+
+    dbContext.Notes.Remove(note);
+    await dbContext.SaveChangesAsync(cancellationToken);
+
+    return Results.NoContent();
+})
+   .WithName("DeleteNote");
+
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -90,6 +148,8 @@ app.Run();
 record HelloMessage(string Message, DateTimeOffset ServerTime);
 
 record CreateNoteRequest(string? Text);
+
+record UpdateNoteRequest(string? Text, bool IsArchived);
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

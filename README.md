@@ -17,11 +17,15 @@ The Vite dev server proxies `/api/*` to the API (see [Appka.Client/vite.config.t
 | Method | Route | Description |
 | --- | --- | --- |
 | GET | `/api/hello` | Greeting plus current server time |
+| GET | `/api/notes` | Lists notes ordered by ID |
 | POST | `/api/notes` | Creates a note when `text` contains at least two characters |
+| PUT | `/api/notes/{id}` | Updates a note's `text` and `isArchived`; text must contain at least two characters |
+| DELETE | `/api/notes/{id}` | Deletes a note |
 | GET | `/api/weatherforecast` | Five random forecast entries |
 | GET | `/openapi/v1.json` | OpenAPI document (Development only) |
 
 Create a note with `POST /api/notes` and a JSON body such as `{"text":"Remember this"}`. The server generates its timestamp-based ID.
+Update a note with `PUT /api/notes/{id}` and a JSON body such as `{"text":"Remember this","isArchived":false}`. Update and delete return `404` when the ID is not found.
 
 ## Prerequisites
 
