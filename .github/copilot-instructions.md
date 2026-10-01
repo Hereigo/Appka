@@ -14,6 +14,13 @@ Apply these instructions to work in this workspace. Follow the user's request fi
 - Follow existing C# and TypeScript style. Keep C# nullability correct, initialize non-null properties, and use the client's strict TypeScript types. Keep API response shapes and client types aligned when changing contracts.
 - Prefer the smallest maintainable change in the owning project. Reuse established patterns, validate inputs at boundaries, handle errors explicitly, and avoid introducing secrets into source or logs. Add tests appropriate to changed behavior when a test setup exists; do not invent infrastructure for a trivial change.
 
+## AI-assisted implementation
+
+- Before changing code, inspect the owning implementation and relevant callers, types, and tests. Follow the established patterns and preserve existing contracts unless the request requires changing them.
+- Make complete, production-ready changes that address the root cause. Do not leave placeholder implementations, silently swallow errors, or claim behavior that has not been implemented.
+- Keep changes limited to the request. Avoid unrelated refactors, new dependencies, endpoints, persistence, or behavior.
+- For behavior changes, add or update focused tests when a test setup exists. Run the relevant checks below and report what passed and what could not be verified.
+
 ## Validation
 
 - Server: run `dotnet build Appka.slnx` for server changes.
