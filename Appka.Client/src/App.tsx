@@ -92,10 +92,10 @@ function App() {
             <tbody>
               {forecast.map((f) => (
                 <tr key={f.date}>
-                  <td>{f.date}</td>
+                  <td>{new Date(f.date).toLocaleDateString()}</td>
                   <td>{f.temperatureC}</td>
                   <td>{f.temperatureF}</td>
-                  <td>{f.summary}</td>
+                  <td>{f.summary ?? '—'}</td>
                 </tr>
               ))}
             </tbody>

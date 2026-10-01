@@ -4,9 +4,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 
 const string ClientCors = "ClientCors";
+
+// Empty in development: the Vite dev server proxies /api, so requests are same-origin.
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
 builder.Services.AddCors(options =>
     options.AddPolicy(ClientCors, policy => policy
-        .WithOrigins("http://localhost:5173")
+        .WithOrigins(allowedOrigins)
         .AllowAnyHeader()
         .AllowAnyMethod()));
 
@@ -15,6 +19,14 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
+if (allowedOrigins.Length > 0)
+{
     app.UseCors(ClientCors);
 }
 
