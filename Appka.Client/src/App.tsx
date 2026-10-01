@@ -1,26 +1,15 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
+import NoteForm from './NoteForm'
+import NoteList from './NoteList'
+import type { HelloMessage, Note } from './types'
 import './App.css'
-
-type HelloMessage = {
-  message: string
-  serverTime: string
-}
-
-type Note = {
-  id: number
-  isArchived: boolean
-  text: string
-}
 
 function App() {
   const [hello, setHello] = useState<HelloMessage | null>(null)
   const [notes, setNotes] = useState<Note[]>([])
-  const [noteText, setNoteText] = useState('')
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [createError, setCreateError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -51,39 +40,22 @@ function App() {
     return () => controller.abort()
   }, [])
 
-  async function handleCreateNote(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const text = noteText.trim()
+  async function createNote(text: string): Promise<Note> {
+    const response = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
 
-    if (text.length < 2) {
-      setCreateError('Enter at least 2 characters.')
-      return
+    if (!response.ok) {
+      throw new Error(`Could not add note (HTTP ${response.status}).`)
     }
 
-    setSaving(true)
-    setCreateError(null)
-
-    try {
-      const response = await fetch('/api/notes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Could not add note (HTTP ${response.status}).`)
-      }
-
-      const note: Note = await response.json()
-      setNotes((currentNotes) =>
-        [...currentNotes, note].sort((left, right) => left.id - right.id),
-      )
-      setNoteText('')
-    } catch (err) {
-      setCreateError(err instanceof Error ? err.message : 'Could not add note.')
-    } finally {
-      setSaving(false)
-    }
+    const note: Note = await response.json()
+    setNotes((currentNotes) =>
+      [...currentNotes, note].sort((left, right) => left.id - right.id),
+    )
+    return note
   }
 
   return (
@@ -111,47 +83,8 @@ function App() {
 
       <section className="card notes-card" aria-labelledby="notes-heading">
         <h2 id="notes-heading">Notes</h2>
-
-        <form className="note-form" onSubmit={handleCreateNote}>
-          <label htmlFor="note-text">New note</label>
-          <textarea
-            id="note-text"
-            name="text"
-            rows={3}
-            minLength={2}
-            required
-            placeholder="Write something worth remembering…"
-            value={noteText}
-            onChange={(event) => setNoteText(event.target.value)}
-          />
-          <div className="form-actions">
-            {createError && <p className="error" role="alert">{createError}</p>}
-            <button type="submit" disabled={saving || noteText.trim().length < 2}>
-              {saving ? 'Adding…' : 'Add note'}
-            </button>
-          </div>
-        </form>
-
-        <div className="note-list" aria-live="polite">
-          {loadError && (
-            <p className="error" role="alert">
-              Could not load notes from <code>Appka.Server</code>: {loadError}
-            </p>
-          )}
-          {loading && <p className="muted">Loading notes…</p>}
-          {!loading && !loadError && notes.length === 0 && (
-            <p className="empty-state">No notes yet. Add one above.</p>
-          )}
-          {!loading && !loadError && notes.map((note) => (
-            <article className="note-row" key={note.id}>
-              <p className="note-text">{note.text}</p>
-              <div className="note-details">
-                <span className="note-id">#{note.id}</span>
-                {note.isArchived && <span className="note-status">Archived</span>}
-              </div>
-            </article>
-          ))}
-        </div>
+        <NoteForm onCreateNote={createNote} />
+        <NoteList notes={notes} loading={loading} loadError={loadError} />
       </section>
     </main>
   )
