@@ -6,6 +6,37 @@ import type { HelloMessage, Note } from './types'
 import './App.css'
 
 function App() {
+  const [hash, setHash] = useState(() => window.location.hash)
+
+  useEffect(() => {
+    function handleHashChange() {
+      setHash(window.location.hash)
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  if (hash === '#/notes') return <NotesPage />
+
+  return (
+    <main className="page">
+      <header className="header">
+        <img src={reactLogo} className="logo" alt="React logo" />
+        <div>
+          <h1>Appka</h1>
+          <p className="subtitle">A small place for your notes</p>
+        </div>
+      </header>
+      <section aria-labelledby="welcome-heading">
+        <h2 id="welcome-heading">Welcome home</h2>
+        <a className="page-link" href="#/notes">Open notes</a>
+      </section>
+    </main>
+  )
+}
+
+function NotesPage() {
   const [hello, setHello] = useState<HelloMessage | null>(null)
   const [notes, setNotes] = useState<Note[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -60,6 +91,9 @@ function App() {
 
   return (
     <main className="page">
+      <nav className="page-nav" aria-label="Main navigation">
+        <a className="page-link" href="#/">Home</a>
+      </nav>
       <header className="header">
         <img src={reactLogo} className="logo" alt="React logo" />
         <div>

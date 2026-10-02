@@ -57,7 +57,7 @@ cd Appka.Client
 npm run dev
 ```
 
-Open http://localhost:5173 - the page fetches from the API and shows the greeting plus the forecast table.
+Open http://localhost:5173 for the home page, then follow **Open notes** to view the existing greeting and notes page. You can also open http://localhost:5173/#/notes directly. The **Home** link returns to the home page.
 
 ## Database
 
