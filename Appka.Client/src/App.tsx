@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
-import NoteForm from './NoteForm'
-import NoteList from './NoteList'
-import type { HelloMessage, Note } from './types'
+import HomePage from './HomePage'
+import NotesPage from './NotesPage'
+import ContactsPage from './ContactsPage'
 import './App.css'
 
 function App() {
   const [hash, setHash] = useState(() => window.location.hash)
+  const currentPage = hash === '#/notes' ? 'notes' : hash === '#/contacts' ? 'contacts' : 'home'
 
   useEffect(() => {
     function handleHashChange() {
@@ -17,110 +18,28 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange)
   }, [])
 
-  if (hash === '#/notes') return <NotesPage />
-
   return (
-    <main className="page">
+    <div className="page">
       <header className="header">
-        <img src={reactLogo} className="logo" alt="React logo" />
-        <div>
-          <h1>Appka</h1>
-          <p className="subtitle">A small place for your notes</p>
+        <div className="header-brand">
+          <img src={reactLogo} className="logo" alt="React logo" />
+          <div>
+            <h1>Appka</h1>
+            <p className="subtitle">A small place for your notes</p>
+          </div>
         </div>
+        <nav className="page-nav" aria-label="Main navigation">
+          <a className="page-link" href="#/" aria-current={currentPage === 'home' ? 'page' : undefined}>Home</a>
+          <a className="page-link" href="#/notes" aria-current={currentPage === 'notes' ? 'page' : undefined}>Notes</a>
+          <a className="page-link" href="#/contacts" aria-current={currentPage === 'contacts' ? 'page' : undefined}>Contacts</a>
+        </nav>
       </header>
-      <section aria-labelledby="welcome-heading">
-        <h2 id="welcome-heading">Welcome home</h2>
-        <a className="page-link" href="#/notes">Open notes</a>
-      </section>
-    </main>
-  )
-}
-
-function NotesPage() {
-  const [hello, setHello] = useState<HelloMessage | null>(null)
-  const [notes, setNotes] = useState<Note[]>([])
-  const [loadError, setLoadError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function load() {
-      try {
-        const [helloRes, notesRes] = await Promise.all([
-          fetch('/api/hello', { signal: controller.signal }),
-          fetch('/api/notes', { signal: controller.signal }),
-        ])
-
-        if (!helloRes.ok || !notesRes.ok) {
-          throw new Error(`API returned ${helloRes.status} / ${notesRes.status}`)
-        }
-
-        setHello(await helloRes.json())
-        setNotes(await notesRes.json())
-        setLoadError(null)
-      } catch (err) {
-        if (controller.signal.aborted) return
-        setLoadError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        if (!controller.signal.aborted) setLoading(false)
-      }
-    }
-
-    load()
-    return () => controller.abort()
-  }, [])
-
-  async function createNote(text: string): Promise<Note> {
-    const response = await fetch('/api/notes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
-    })
-
-    if (!response.ok) {
-      throw new Error(`Could not add note (HTTP ${response.status}).`)
-    }
-
-    const note: Note = await response.json()
-    setNotes((currentNotes) =>
-      [...currentNotes, note].sort((left, right) => left.id - right.id),
-    )
-    return note
-  }
-
-  return (
-    <main className="page">
-      <nav className="page-nav" aria-label="Main navigation">
-        <a className="page-link" href="#/">Home</a>
-      </nav>
-      <header className="header">
-        <img src={reactLogo} className="logo" alt="React logo" />
-        <div>
-          <h1>Appka</h1>
-          <p className="subtitle">A small place for your notes</p>
-        </div>
-      </header>
-
-      <section className="card">
-        <h2>Server says</h2>
-        {loading && <p className="muted">Loading…</p>}
-        {hello && (
-          <>
-            <p className="message">{hello.message}</p>
-            <p className="muted">
-              Server time: {new Date(hello.serverTime).toLocaleString()}
-            </p>
-          </>
-        )}
-      </section>
-
-      <section className="card notes-card" aria-labelledby="notes-heading">
-        <h2 id="notes-heading">Notes</h2>
-        <NoteForm onCreateNote={createNote} />
-        <NoteList notes={notes} loading={loading} loadError={loadError} />
-      </section>
-    </main>
+      <main>
+        {currentPage === 'home' && <HomePage />}
+        {currentPage === 'notes' && <NotesPage />}
+        {currentPage === 'contacts' && <ContactsPage />}
+      </main>
+    </div>
   )
 }
 

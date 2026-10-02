@@ -7,13 +7,23 @@
 
 .header {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .page-nav {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
 }
 
 .page-link {
@@ -26,6 +36,10 @@
 
 .page-link:hover {
   text-decoration-thickness: 2px;
+}
+
+.page-link[aria-current='page'] {
+  text-decoration-thickness: 3px;
 }
 
 .page-link:focus-visible {

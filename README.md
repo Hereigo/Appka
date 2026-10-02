@@ -57,7 +57,7 @@ cd Appka.Client
 npm run dev
 ```
 
-Open http://localhost:5173 for the home page, then follow **Open notes** to view the existing greeting and notes page. You can also open http://localhost:5173/#/notes directly. The **Home** link returns to the home page.
+Open http://localhost:5173 for the home page. The shared header lets you switch between **Home**, **Notes**, and **Contacts**. The home page also has an **Open notes** link to the existing greeting and notes page. Direct links are http://localhost:5173/#/notes and http://localhost:5173/#/contacts; Contacts contains placeholder Lorem ipsum text.
 
 ## Database
 
