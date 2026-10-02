@@ -1,5 +1,7 @@
 using Appka.Server;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,41 @@ var connectionString = builder.Configuration.GetConnectionString("Appka")
     ?? throw new InvalidOperationException("Connection string 'Appka' was not found.");
 
 builder.Services.AddDbContext<NotesDbContext>(options => options.UseSqlite(connectionString));
+
+var cidaasAuthority = builder.Configuration["Cidaas:Authority"];
+var cidaasAudience = builder.Configuration["Cidaas:Audience"];
+
+if (string.IsNullOrWhiteSpace(cidaasAuthority) || string.IsNullOrWhiteSpace(cidaasAudience))
+{
+    throw new InvalidOperationException(
+        "'Cidaas:Authority' and 'Cidaas:Audience' must be configured so notes endpoints can validate access tokens.");
+}
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        // The discovery document and JWKS are fetched from the authority and cached.
+        options.Authority = cidaasAuthority;
+        options.Audience = cidaasAudience;
+        options.RequireHttpsMetadata = true;
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = cidaasAuthority,
+            ValidateAudience = true,
+            ValidAudience = cidaasAudience,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.FromSeconds(30),
+            NameClaimType = "sub",
+            RoleClaimType = "roles"
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -31,12 +68,17 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseHttpsRedirection();
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
 }
 
 if (allowedOrigins.Length > 0)
 {
     app.UseCors(ClientCors);
 }
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 var api = app.MapGroup("/api");
 
@@ -69,14 +111,16 @@ api.MapPost("/notes", async (
 
     return Results.Json(note, statusCode: StatusCodes.Status201Created);
 })
-   .WithName("CreateNote");
+   .WithName("CreateNote")
+   .RequireAuthorization();
 
 api.MapGet("/notes", async (NotesDbContext dbContext, CancellationToken cancellationToken) =>
         await dbContext.Notes
             .AsNoTracking()
             .OrderBy(note => note.Id)
             .ToListAsync(cancellationToken))
-   .WithName("GetNotes");
+   .WithName("GetNotes")
+   .RequireAuthorization();
 
 api.MapPut("/notes/{id:long}", async (
     long id,
@@ -107,7 +151,8 @@ api.MapPut("/notes/{id:long}", async (
 
     return Results.Ok(note);
 })
-   .WithName("UpdateNote");
+   .WithName("UpdateNote")
+   .RequireAuthorization();
 
 api.MapDelete("/notes/{id:long}", async (
     long id,
@@ -127,7 +172,8 @@ api.MapDelete("/notes/{id:long}", async (
 
     return Results.NoContent();
 })
-   .WithName("DeleteNote");
+   .WithName("DeleteNote")
+   .RequireAuthorization();
 
 var summaries = new[]
 {
@@ -142,6 +188,12 @@ api.MapGet("/weatherforecast", () =>
                 summaries[Random.Shared.Next(summaries.Length)]))
             .ToArray())
    .WithName("GetWeatherForecast");
+
+if (!app.Environment.IsDevelopment())
+{
+    app.MapFallback("/api/{**path}", () => Results.NotFound());
+    app.MapFallbackToFile("index.html");
+}
 
 app.Run();
 

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
+import AuthControls from './auth/AuthControls'
+import RequireAuth from './auth/RequireAuth'
 import HomePage from './HomePage'
 import NotesPage from './NotesPage'
 import ContactsPage from './ContactsPage'
@@ -33,10 +35,15 @@ function App() {
           <a className="page-link" href="#/notes" aria-current={currentPage === 'notes' ? 'page' : undefined}>Notes</a>
           <a className="page-link" href="#/contacts" aria-current={currentPage === 'contacts' ? 'page' : undefined}>Contacts</a>
         </nav>
+        <AuthControls />
       </header>
       <main>
         {currentPage === 'home' && <HomePage />}
-        {currentPage === 'notes' && <NotesPage />}
+        {currentPage === 'notes' && (
+          <RequireAuth>
+            <NotesPage />
+          </RequireAuth>
+        )}
         {currentPage === 'contacts' && <ContactsPage />}
       </main>
     </div>

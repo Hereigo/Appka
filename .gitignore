@@ -417,3 +417,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+.env dev
+.env prod
+.env.prod
+.env.dev

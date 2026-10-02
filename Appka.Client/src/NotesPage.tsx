@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useAuth } from 'react-oidc-context'
 import NoteForm from './NoteForm'
 import NoteList from './NoteList'
 import type { HelloMessage, Note } from './types'
 
 function NotesPage() {
+  const accessToken = useAuth().user?.access_token
   const [hello, setHello] = useState<HelloMessage | null>(null)
   const [notes, setNotes] = useState<Note[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -16,8 +18,15 @@ function NotesPage() {
       try {
         const [helloRes, notesRes] = await Promise.all([
           fetch('/api/hello', { signal: controller.signal }),
-          fetch('/api/notes', { signal: controller.signal }),
+          fetch('/api/notes', {
+            signal: controller.signal,
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }),
         ])
+
+        if (notesRes.status === 401 || notesRes.status === 403) {
+          throw new Error('Your session is not allowed to read notes. Try signing in again.')
+        }
 
         if (!helloRes.ok || !notesRes.ok) {
           throw new Error(`API returned ${helloRes.status} / ${notesRes.status}`)
@@ -36,14 +45,21 @@ function NotesPage() {
 
     load()
     return () => controller.abort()
-  }, [])
+  }, [accessToken])
 
   async function createNote(text: string): Promise<Note> {
     const response = await fetch('/api/notes', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
       body: JSON.stringify({ text }),
     })
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Your session is not allowed to add notes. Try signing in again.')
+    }
 
     if (!response.ok) {
       throw new Error(`Could not add note (HTTP ${response.status}).`)
